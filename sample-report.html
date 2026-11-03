@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Health report - LT-SUPPORT-042</title>
+<style>:root{--bg:#f4f6fa;--card:#fff;--text:#1b2433;--muted:#667085;--line:#e4e8ef;--soft:#f7f9fc;
+--pass:#15803d;--pass-bg:#dcfce7;--warn:#b45309;--warn-bg:#fef3c7;--fail:#dc2626;--fail-bg:#fee2e2;--info:#0369a1;--info-bg:#e0f2fe;--track:#e8ecf2}
+[data-theme=dark]{--bg:#0d131e;--card:#151d2b;--text:#e6eaf2;--muted:#93a0b7;--line:#243046;--soft:#111826;
+--pass:#4ade80;--pass-bg:#12321f;--warn:#fbbf24;--warn-bg:#3a2c0b;--fail:#f87171;--fail-bg:#3d1518;--info:#38bdf8;--info-bg:#0c2c40;--track:#243046}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 "Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif}
+.wrap{max-width:1080px;margin:0 auto;padding:28px 20px 40px}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}
+h1{font-size:22px;margin:0;font-weight:650;letter-spacing:-.01em}
+h2{font-size:15px;margin:0 0 12px;font-weight:650}
+.sub{color:var(--muted);font-size:13px}
+button{background:var(--card);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:7px 12px;cursor:pointer;font:inherit;font-size:13px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:16px}
+.top{display:grid;grid-template-columns:280px 1fr;gap:16px}
+.score{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.ring{position:relative;width:140px;height:140px}
+.ring svg{transform:rotate(-90deg)}
+.ring .num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring .num b{font-size:38px;line-height:1;font-weight:700}
+.ring .num span{color:var(--muted);font-size:12px}
+.grade{margin-top:10px;font-weight:650;font-size:16px}
+.good{color:var(--pass)}.mid{color:var(--warn)}.bad{color:var(--fail)}
+.counts{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap;justify-content:center}
+.counts span{font-size:12px;padding:3px 9px;border-radius:999px;font-weight:600}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 28px}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid var(--line)}
+.kv span{color:var(--muted);white-space:nowrap}
+.kv b{font-weight:600;text-align:right;overflow-wrap:anywhere}
+.pill{display:inline-block;min-width:48px;text-align:center;font-size:11px;font-weight:700;letter-spacing:.04em;padding:3px 8px;border-radius:999px}
+.pill.pass,.counts .pass{background:var(--pass-bg);color:var(--pass)}
+.pill.warn,.counts .warn{background:var(--warn-bg);color:var(--warn)}
+.pill.fail,.counts .fail{background:var(--fail-bg);color:var(--fail)}
+.pill.info,.counts .info{background:var(--info-bg);color:var(--info)}
+ul.attn{list-style:none;margin:0;padding:0}
+ul.attn li{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line)}
+ul.attn li:last-child{border-bottom:0}
+ul.attn p{margin:2px 0 0;color:var(--muted)}
+table{width:100%;border-collapse:collapse}
+td,th{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top;text-align:left}
+th{font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+tr:last-child td{border-bottom:0}
+tr.cat td{background:var(--soft);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);padding:6px 10px}
+td.st{width:72px}td.nm{width:200px;font-weight:600}
+.rec{color:var(--muted);font-size:13px;margin-top:3px}
+.num{text-align:right;white-space:nowrap}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.disk{margin-bottom:14px}.disk:last-child{margin-bottom:0}
+.dh{display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px}
+.dh span{color:var(--muted)}
+.bar{height:9px;background:var(--track);border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;border-radius:99px}
+.bar i.pass{background:var(--pass)}.bar i.warn{background:var(--warn)}.bar i.fail{background:var(--fail)}.bar i.info{background:var(--info)}
+.muted{color:var(--muted)}
+.demo{background:var(--info-bg);color:var(--info);padding:8px 12px;border-radius:8px;margin-bottom:16px;font-size:13px;font-weight:600}
+footer{color:var(--muted);font-size:12px;text-align:center;margin-top:24px}
+@media (max-width:760px){.top,.cols,.grid{grid-template-columns:1fr}td.nm{width:auto}}
+@media print{button{display:none}body{background:#fff}.card{break-inside:avoid}}</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div><h1>Windows Health Report</h1><div class="sub">LT-SUPPORT-042 &middot; generated 2026-11-03 09:42:34 &middot; v1.0.0</div></div>
+  <button id="theme" type="button" title="Switch light / dark theme">Light / Dark</button>
+</header>
+<div class="demo">Demo report built from sample data, not from a real computer.</div>
+<div class="top">
+  <div class="card score">
+    <div class="ring">
+      <svg width="140" height="140" viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" fill="none" stroke="var(--track)" stroke-width="10"/>
+      <circle class="mid" cx="60" cy="60" r="52" fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-dasharray="251.6 326.73"/></svg>
+      <div class="num"><b>77</b><span>out of 100</span></div>
+    </div>
+    <div class="grade mid">Needs attention</div>
+    <div class="counts"><span class="pass">11 pass</span><span class="warn">5 warn</span><span class="fail">1 fail</span><span class="info">0 info</span></div>
+  </div>
+  <div class="card"><h2>System</h2><div class="grid"><div class="kv"><span>Computer</span><b>LT-SUPPORT-042</b></div><div class="kv"><span>User</span><b>CORP\demo.user</b></div><div class="kv"><span>Model</span><b>Dell Inc. Latitude 5420</b></div><div class="kv"><span>Serial number</span><b>7XK2Q93</b></div><div class="kv"><span>Operating system</span><b>Microsoft Windows 11 Pro</b></div><div class="kv"><span>Version</span><b>10.0.26100</b></div><div class="kv"><span>Processor</span><b>11th Gen Intel(R) Core(TM) i5-1145G7 @ 2.60GHz</b></div><div class="kv"><span>Memory</span><b>15.7 GB</b></div><div class="kv"><span>Domain</span><b>corp.example.local</b></div><div class="kv"><span>Run as admin</span><b>Yes</b></div></div></div>
+</div>
+<div class="card"><h2>Needs attention</h2><ul class="attn"><li><span class="pill fail">FAIL</span><div><b>Firewall</b> <span class="muted">- Domain: On, Private: On, Public: OFF</span><p>Turn the firewall back on for the Public profile (Windows Security &gt; Firewall &amp; network protection).</p></div></li><li><span class="pill warn">WARN</span><div><b>Uptime / last reboot</b> <span class="muted">- Last reboot 2026-10-16 06:42 (18 days ago)</span><p>Restart the PC to finish updates and clear memory.</p></div></li><li><span class="pill warn">WARN</span><div><b>Memory usage</b> <span class="muted">- 84% in use (13.2 GB of 15.7 GB)</span><p>Memory is running high. Review the top memory processes.</p></div></li><li><span class="pill warn">WARN</span><div><b>Disk space D: (Data)</b> <span class="muted">- 9% free (42.0 GB of 465.6 GB)</span><p>Free space is below 15%. Run Disk Cleanup or Storage Sense.</p></div></li><li><span class="pill warn">WARN</span><div><b>Windows Update</b> <span class="muted">- 3 update(s) waiting to install; last update installed 2026-09-30 (34 days ago)</span><p>Install the pending updates from Settings &gt; Windows Update, then restart.</p></div></li><li><span class="pill warn">WARN</span><div><b>Battery health</b> <span class="muted">- 76% of design capacity (41,200 / 54,000 mWh), charged 86%</span><p>The battery has lost noticeable capacity. Run &quot;powercfg /batteryreport&quot; for its full history.</p></div></li></ul></div>
+<div class="card"><h2>All checks</h2><table><tr class="cat"><td colspan="3">System</td></tr><tr><td class="st"><span class="pill pass">PASS</span></td><td class="nm">Operating system</td><td>Microsoft Windows 11 Pro 24H2 (build 26100.2314)</td></tr><tr><td class="st"><span class="pill warn">WARN</span></td><td class="nm">Uptime / last reboot</td><td>Last reboot 2026-10-16 06:42 (18 days ago)<div class="rec">Restart the PC to finish updates and clear memory.</div></td></tr><tr><td class="st"><span class="pill pass">PASS</span></td><td class="nm">Pending reboot</td><td>No restart pending</td></tr><tr class="cat"><td colspan="3">Performance</td></tr><tr><td class="st"><span class="pill pass">PASS</span></td><td class="nm">CPU usage</td><td>23% average load - 11th Gen Intel(R) Core(TM) i5-1145G7 @ 2.60GHz (4 cores / 8 threads)</td></tr><tr><td class="st"><span class="pill warn">WARN</span></td><td class="nm">Memory usage</td><td>84% in use (13.2 GB of 15.7 GB)<div class="rec">Memory is running high. Review the top memory processes.</div></td></tr><tr><td class="st"><span class="pill pass">PASS</span></td><td class="nm">Top memory processes</td><td>chrome (1,874 MB), ms-teams (1,102 MB), OUTLOOK (684 MB), MsMpEng (391 MB), explorer (236 MB)</td></tr><tr><td class="st"><span class="pill pass">PASS</span></td><td class="nm">Startup programs</td><td>11 programs start with Windows</td></tr><tr class="cat"><td colspan="3">Storage</td></tr><tr><td class="st"><span class="pill pass">PASS</span></td><td class="nm">Disk space C: (OS)</td><td>41.1% free (97.7 GB of 237.8 GB)</td></tr><tr><td class="st"><span class="pill warn">WARN</span></td><td class="nm">Disk space D: (Data)</td><td>9% free (42.0 GB of 465.6 GB)<div class="rec">Free space is below 15%. Run Disk Cleanup or Storage Sense.</div></td></tr><tr class="cat"><td colspan="3">Updates</td></tr><tr><td class="st"><span class="pill warn">WARN</span></td><td class="nm">Windows Update</td><td>3 update(s) waiting to install; last update installed 2026-09-30 (34 days ago)<div class="rec">Install the pending updates from Settings &gt; Windows Update, then restart.</div></td></tr><tr class="cat"><td colspan="3">Security</td></tr><tr><td class="st"><span class="pill pass">PASS</span></td><td class="nm">Antivirus</td><td>Microsoft Defender on, real-time protection on, definitions 14 hours old, last scan 2 days ago</td></tr><tr><td class="st"><span class="pill fail">FAIL</span></td><td class="nm">Firewall</td><td>Domain: On, Private: On, Public: OFF<div class="rec">Turn the firewall back on for the Public profile (Windows Security &gt; Firewall &amp; network protection).</div></td></tr><tr><td class="st"><span class="pill pass">PASS</span></td><td class="nm">BitLocker encryption</td><td>C: is encrypted and protected</td></tr><tr><td class="st"><span class="pill pass">PASS</span></td><td class="nm">Failed logins (24h)</td><td>2 failed login attempt(s) in the last 24 hours (demo.user: 2)</td></tr><tr class="cat"><td colspan="3">Network</td></tr><tr><td class="st"><span class="pill pass">PASS</span></td><td class="nm">Network adapters</td><td>Intel(R) Wi-Fi 6 AX201 160MHz: 192.168.10.42</td></tr><tr><td class="st"><span class="pill pass">PASS</span></td><td class="nm">Internet connectivity</td><td>Web test OK, DNS OK, ping 18 ms</td></tr><tr class="cat"><td colspan="3">Hardware</td></tr><tr><td class="st"><span class="pill warn">WARN</span></td><td class="nm">Battery health</td><td>76% of design capacity (41,200 / 54,000 mWh), charged 86%<div class="rec">The battery has lost noticeable capacity. Run &quot;powercfg /batteryreport&quot; for its full history.</div></td></tr></table></div>
+<div class="cols">
+  <div class="card"><h2>Disk usage</h2><div class="disk"><div class="dh"><b>C: OS</b><span>97.7 GB free of 237.8 GB</span></div><div class="bar"><i class="pass" style="width:59%"></i></div></div><div class="disk"><div class="dh"><b>D: Data</b><span>42.0 GB free of 465.6 GB</span></div><div class="bar"><i class="warn" style="width:91%"></i></div></div></div>
+  <div class="card"><h2>Top memory processes</h2><table><tr><th>Process</th><th class="num">PID</th><th class="num">Memory</th></tr><tr><td>chrome</td><td class="num">11234</td><td class="num">1,874 MB</td></tr><tr><td>ms-teams</td><td class="num">9876</td><td class="num">1,102 MB</td></tr><tr><td>OUTLOOK</td><td class="num">6120</td><td class="num">684 MB</td></tr><tr><td>MsMpEng</td><td class="num">4012</td><td class="num">391 MB</td></tr><tr><td>explorer</td><td class="num">5528</td><td class="num">236 MB</td></tr></table></div>
+</div>
+<div class="card"><h2>Network adapters</h2><table><tr><th>Adapter</th><th>IPv4</th><th>Gateway</th><th>DNS</th></tr><tr><td>Intel(R) Wi-Fi 6 AX201 160MHz</td><td>192.168.10.42</td><td>192.168.10.1</td><td>192.168.10.5, 8.8.8.8</td></tr></table></div>
+<div class="card"><h2>Pending updates</h2><table><tr><td>Cumulative Update for Windows 11 Version 24H2 for x64-based Systems <span class="muted">(Critical)</span></td><td class="num">KB5046617</td></tr><tr><td>Cumulative Update for .NET Framework 3.5 and 4.8.1 for Windows 11 <span class="muted">(Important)</span></td><td class="num">KB5045934</td></tr><tr><td>Windows Malicious Software Removal Tool x64</td><td class="num">KB890830</td></tr></table></div>
+<footer>Windows Health Checker v1.0.0 &middot; read-only checks, no changes were made to this computer &middot; completed in 0.2 s</footer>
+</div>
+<script>(function(){var k='whc-theme',r=document.documentElement,s=null;try{s=localStorage.getItem(k)}catch(e){}
+var t=s||(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');r.setAttribute('data-theme',t);
+document.getElementById('theme').onclick=function(){t=(r.getAttribute('data-theme')==='dark')?'light':'dark';r.setAttribute('data-theme',t);try{localStorage.setItem(k,t)}catch(e){}};})();</script>
+</body>
+</html>
