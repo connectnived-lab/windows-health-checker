@@ -225,7 +225,7 @@ windows-health-checker/
 
 **Nived NS** - IT Support Executive
 
-- LinkedIn: [linkedin.com/in/your-profile](https://www.linkedin.com/in/your-profile)
+- LinkedIn: [linkedin.com/in/nivedns](https://www.linkedin.com/in/nivedns)
 - GitHub: [@connectnived-lab](https://github.com/connectnived-lab)
 
 ## License
