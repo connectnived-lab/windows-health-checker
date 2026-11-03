@@ -1,0 +1,54 @@
+name: tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    name: Tests (${{ matrix.shell }})
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shell: [powershell, pwsh]   # Windows PowerShell 5.1 and PowerShell 7
+    defaults:
+      run:
+        shell: ${{ matrix.shell }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Pester and PSScriptAnalyzer
+        run: |
+          [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+          Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force -Scope CurrentUser | Out-Null
+          Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+          Install-Module Pester -MinimumVersion 5.5.0 -Force -SkipPublisherCheck -Scope CurrentUser
+          Install-Module PSScriptAnalyzer -Force -Scope CurrentUser
+
+      - name: Lint
+        run: |
+          $findings = Invoke-ScriptAnalyzer -Path ./src -Recurse -Severity Warning, Error
+          $findings | Format-Table -AutoSize
+          if ($findings) { exit 1 }
+
+      - name: Pester
+        run: |
+          Import-Module Pester -MinimumVersion 5.5.0
+          $config = New-PesterConfiguration
+          $config.Run.Path = './tests'
+          $config.Run.Exit = $true
+          $config.Output.Verbosity = 'Detailed'
+          Invoke-Pester -Configuration $config
+
+      - name: Real run on the runner
+        run: |
+          ./src/WindowsHealthChecker.ps1 -SkipUpdateCheck -Json -OutputPath ./out
+          "Health check exit code: $LASTEXITCODE (1/2 = warnings/failures found, which is expected on a CI runner)"
+          exit 0
+
+      - name: Upload report
+        uses: actions/upload-artifact@v4
+        with:
+          name: health-report-${{ matrix.shell }}
+          path: out/
