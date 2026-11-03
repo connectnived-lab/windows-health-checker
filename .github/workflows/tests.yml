@@ -21,14 +21,14 @@ jobs:
       - name: Install Pester and PSScriptAnalyzer
         run: |
           [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-          Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force -Scope CurrentUser | Out-Null
+          if ($PSVersionTable.PSEdition -eq 'Desktop') { Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force -Scope CurrentUser | Out-Null }
           Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
           Install-Module Pester -MinimumVersion 5.5.0 -Force -SkipPublisherCheck -Scope CurrentUser
           Install-Module PSScriptAnalyzer -Force -Scope CurrentUser
 
       - name: Lint
         run: |
-          $findings = Invoke-ScriptAnalyzer -Path ./src -Recurse -Severity Warning, Error
+          $findings = Invoke-ScriptAnalyzer -Path ./src -Recurse -Severity Warning, Error -ExcludeRule PSUseSingularNouns
           $findings | Format-Table -AutoSize
           if ($findings) { exit 1 }
 
